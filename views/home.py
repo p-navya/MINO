@@ -98,7 +98,8 @@ def show():
             </div>
         """, unsafe_allow_html=True)
     except FileNotFoundError:
-        st.warning("Preview video (my.mp4) not found.")
+        # Silently skip if video is missing to keep UI clean in production
+        st.write("") 
 
     # 4. Action Button
     col1, col2, col3 = st.columns([1.5, 1, 1.5])
