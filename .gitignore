@@ -17,6 +17,10 @@ mino-e81f4-firebase-adminsdk-fbsvc-*.json
 *.jpg
 *.png
 
+# Allow specific main assets
+!my.mp4
+!ai.jpg
+
 # Node
 node_modules/
 package-lock.json
