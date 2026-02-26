@@ -63,57 +63,38 @@ def show():
         </style>
     """, unsafe_allow_html=True)
 
-    # 2. Main Hero UI
-    # We use a container and separate calls to ensure the Base64 doesn't break the HTML rendering
+    # 2. Hero Section Wrapper
     st.markdown('<div class="hero-shell">', unsafe_allow_html=True)
     
-    # Text Section
+    # Title & Subtitle
     st.markdown("""
-        <div style="text-align: center;">
-            <p style="color: #38bdf8; font-weight: 700; font-size: 0.85rem; letter-spacing: 2px; margin-bottom: 10px; opacity: 0.8;">WELCOME TO THE FUTURE</p>
-            <h1 class="hero-title">
-                Meet <span style="background: linear-gradient(135deg, #FF0080 0%, #7928CA 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Mino</span>
-            </h1>
-            <p class="hero-subtitle">Your intelligent companion for the digital age.</p>
-        </div>
+        <h1 class="hero-title">
+            Meet <span style='background: linear-gradient(135deg, #FF0080 0%, #7928CA 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>Mino</span>
+        </h1>
+        <p class="hero-subtitle">Your intelligent companion for the digital age.</p>
     """, unsafe_allow_html=True)
 
-    # Video Section - Using st.video for stability then styling it with CSS
+    # 3. Video Rendering
     try:
-        with open("my.mp4", "rb") as v_file:
-            video_bytes = v_file.read()
-            # We wrap it in a div to apply the wrapper styling from our CSS
-            st.markdown('<div class="video-wrapper">', unsafe_allow_html=True)
-            st.video(video_bytes, format="video/mp4", start_time=0, loop=True, autoplay=True, muted=True)
-            st.markdown('</div>', unsafe_allow_html=True)
-    except Exception:
-        st.markdown('<div style="height: 20px;"></div>', unsafe_allow_html=True)
+        with open("my.mp4", "rb") as video_file:
+            video_bytes = video_file.read()
+            video_b64 = base64.b64encode(video_bytes).decode()
+            
+        st.markdown(f"""
+            <div class="video-wrapper">
+                <video autoplay loop muted playsinline>
+                    <source src="data:video/mp4;base64,{video_b64}" type="video/mp4">
+                </video>
+            </div>
+        """, unsafe_allow_html=True)
+    except FileNotFoundError:
+        pass 
 
-    # 3. Action Button
-    st.markdown('<div style="margin-top: 20px; width: 100%; display: flex; justify-content: center;">', unsafe_allow_html=True)
-    col1, col2, col3 = st.columns([1, 1, 1])
+    # 4. Action Button
+    col1, col2, col3 = st.columns([1, 1.2, 1])
     with col2:
         if st.button("Get Started", type="primary", use_container_width=True):
             st.session_state.page = "login"
             st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
 
-    # Close the Shell
-    st.markdown('</div>', unsafe_allow_html=True)
-
-    # Add extra CSS to hide the st.video controls and match our style
-    st.markdown("""
-        <style>
-        /* Target the Streamlit video component to match our theme */
-        [data-testid="stVideo"] {
-            border-radius: 20px !important;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5) !important;
-            border: 1px solid rgba(255,255,255,0.1) !important;
-            overflow: hidden !important;
-        }
-        /* Hide default video controls for a cleaner "background video" look */
-        video::-webkit-media-controls {
-            display: none !important;
-        }
-        </style>
-    """, unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True) # Close hero-shell
