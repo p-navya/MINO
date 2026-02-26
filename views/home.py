@@ -44,6 +44,19 @@ def show():
             border: 1px solid rgba(255,255,255,0.1);
         }
 
+        .welcome-badge {
+            background: rgba(56, 189, 248, 0.1);
+            color: #38bdf8;
+            padding: 6px 16px;
+            border-radius: 100px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+        }
+
         /* Premium Blue-Black Buttons */
         div.stButton > button {
             background: #0f172a !important;
@@ -67,8 +80,9 @@ def show():
     # Start the Hero Shell
     st.markdown('<div class="hero-shell">', unsafe_allow_html=True)
     
-    # Title & Subtitle
+    # Welcome & Title
     st.markdown("""
+        <div class="welcome-badge">Welcome to the future</div>
         <h1 class="hero-title">
             Meet <span style='background: linear-gradient(135deg, #FF0080 0%, #7928CA 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>Mino</span>
         </h1>
