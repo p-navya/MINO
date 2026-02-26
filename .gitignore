@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+env/
+.env
+
+# Firebase & Secrets (DO NOT PUSH THESE)
+firebase_service_account.json
+mino-e81f4-firebase-adminsdk-fbsvc-*.json
+
+# Media
+*.mp4
+*.jpg
+*.png
+
+# Node
+node_modules/
+package-lock.json
+
+# Streamlit
+.streamlit/
