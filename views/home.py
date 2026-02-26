@@ -44,19 +44,6 @@ def show():
             border: 1px solid rgba(255,255,255,0.1);
         }
 
-        .welcome-badge {
-            background: rgba(56, 189, 248, 0.1);
-            color: #38bdf8;
-            padding: 6px 16px;
-            border-radius: 100px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            margin-bottom: 20px;
-            border: 1px solid rgba(56, 189, 248, 0.2);
-        }
-
         /* Premium Blue-Black Buttons */
         div.stButton > button {
             background: #0f172a !important;
@@ -77,40 +64,45 @@ def show():
     """, unsafe_allow_html=True)
 
     # 2. Main Hero UI
-    # Start the Hero Shell
-    st.markdown('<div class="hero-shell">', unsafe_allow_html=True)
+    # We consolidate everything into a single HTML block to prevent Streamlit 
+    # from breaking the container into empty pieces.
     
-    # Welcome & Title
-    st.markdown("""
-        <div class="welcome-badge">Welcome to the future</div>
-        <h1 class="hero-title">
-            Meet <span style='background: linear-gradient(135deg, #FF0080 0%, #7928CA 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>Mino</span>
-        </h1>
-        <p class="hero-subtitle">Your intelligent companion for the digital age.</p>
-    """, unsafe_allow_html=True)
-
-    # 3. Video Rendering - Separate from main text to avoid f-string parsing issues
+    video_html = ""
     try:
         with open("my.mp4", "rb") as video_file:
             video_bytes = video_file.read()
             video_b64 = base64.b64encode(video_bytes).decode()
-            
-        st.markdown(f"""
-            <div class="video-wrapper" style="display:flex; justify-content:center; width:100%; margin: 10px 0;">
+        video_html = f"""
+            <div class="video-wrapper" style="display:flex; justify-content:center; width:100%; margin: 20px 0;">
                 <video autoplay loop muted playsinline style="width:100%; max-width:420px; border-radius:18px; box-shadow:0 15px 30px rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.1);">
                     <source src="data:video/mp4;base64,{video_b64}" type="video/mp4">
                 </video>
             </div>
-        """, unsafe_allow_html=True)
+        """
     except FileNotFoundError:
-        st.write("")
+        video_html = '<div style="height: 20px;"></div>'
 
-    # 4. Action Button
+    # Single block for the Shell + Title + Video
+    st.markdown(f"""
+        <div class="hero-shell">
+            <h1 class="hero-title">
+                Meet <span style='background: linear-gradient(135deg, #FF0080 0%, #7928CA 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>Mino</span>
+            </h1>
+            <p class="hero-subtitle">Your intelligent companion for the digital age.</p>
+            {video_html}
+            
+            <!-- We'll use a data-testid to target the button area if needed, 
+                 but for now, we just close the shell AFTER the button call below -->
+    """, unsafe_allow_html=True)
+
+    # 3. Action Button
+    # Since st.button MUST be called as a python function, we place it here.
+    # We use CSS to make sure it looks like it's inside the shell.
     col1, col2, col3 = st.columns([1, 1.2, 1])
     with col2:
         if st.button("Get Started", type="primary", use_container_width=True):
             st.session_state.page = "login"
             st.rerun()
 
-    # Close the Hero Shell
+    # Close the Shell
     st.markdown('</div>', unsafe_allow_html=True)
