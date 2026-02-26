@@ -63,38 +63,37 @@ def show():
         </style>
     """, unsafe_allow_html=True)
 
-    # 2. Hero Section Wrapper
-    st.markdown('<div class="hero-shell">', unsafe_allow_html=True)
-    
-    # Title & Subtitle
-    st.markdown("""
-        <h1 class="hero-title">
-            Meet <span style='background: linear-gradient(135deg, #FF0080 0%, #7928CA 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>Mino</span>
-        </h1>
-        <p class="hero-subtitle">Your intelligent companion for the digital age.</p>
-    """, unsafe_allow_html=True)
+    # 2. Main Hero UI - Consolidate into few blocks to prevent Streamlit layout breaking
+    with st.container():
+        # Render Title, Subtitle and Video together
+        video_html = ""
+        try:
+            with open("my.mp4", "rb") as video_file:
+                video_bytes = video_file.read()
+                video_b64 = base64.b64encode(video_bytes).decode()
+            video_html = f"""
+                <div class="video-wrapper" style="display: flex; justify-content: center; width: 100%; margin: 20px 0;">
+                    <video autoplay loop muted playsinline style="width: 100%; max-width: 450px; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1);">
+                        <source src="data:video/mp4;base64,{video_b64}" type="video/mp4">
+                    </video>
+                </div>
+            """
+        except FileNotFoundError:
+            video_html = '<div style="height: 20px;"></div>'
 
-    # 3. Video Rendering
-    try:
-        with open("my.mp4", "rb") as video_file:
-            video_bytes = video_file.read()
-            video_b64 = base64.b64encode(video_bytes).decode()
-            
         st.markdown(f"""
-            <div class="video-wrapper">
-                <video autoplay loop muted playsinline>
-                    <source src="data:video/mp4;base64,{video_b64}" type="video/mp4">
-                </video>
+            <div class="hero-shell">
+                <h1 class="hero-title">
+                    Meet <span style='background: linear-gradient(135deg, #FF0080 0%, #7928CA 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>Mino</span>
+                </h1>
+                <p class="hero-subtitle">Your intelligent companion for the digital age.</p>
+                {video_html}
             </div>
         """, unsafe_allow_html=True)
-    except FileNotFoundError:
-        pass 
 
-    # 4. Action Button
-    col1, col2, col3 = st.columns([1, 1.2, 1])
-    with col2:
+    # 3. Action Button - Outside the shell but below it
+    _, btn_col, _ = st.columns([1, 1, 1])
+    with btn_col:
         if st.button("Get Started", type="primary", use_container_width=True):
             st.session_state.page = "login"
             st.rerun()
-
-    st.markdown('</div>', unsafe_allow_html=True) # Close hero-shell
