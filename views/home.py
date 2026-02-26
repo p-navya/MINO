@@ -36,6 +36,13 @@ def show():
             text-align: center;
         }
         
+        .video-wrapper {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        
         .video-wrapper video {
             width: 100%;
             max-width: 450px;
@@ -63,15 +70,14 @@ def show():
         </style>
     """, unsafe_allow_html=True)
 
-    # 2. Hero Section Wrapper
-    st.markdown('<div class="hero-shell">', unsafe_allow_html=True)
-    
-    # Title & Subtitle
+    # 2. Main Hero UI
+    # We combine the shell opening and title to ensure they stay grouped
     st.markdown("""
-        <h1 class="hero-title">
-            Meet <span style='background: linear-gradient(135deg, #FF0080 0%, #7928CA 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>Mino</span>
-        </h1>
-        <p class="hero-subtitle">Your intelligent companion for the digital age.</p>
+        <div class="hero-shell">
+            <h1 class="hero-title">
+                Meet <span style='background: linear-gradient(135deg, #FF0080 0%, #7928CA 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>Mino</span>
+            </h1>
+            <p class="hero-subtitle">Your intelligent companion for the digital age.</p>
     """, unsafe_allow_html=True)
 
     # 3. Video Rendering
