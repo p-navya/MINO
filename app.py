@@ -16,14 +16,24 @@ st.markdown("""
     footer { visibility: hidden; }
     div[data-testid="stSidebarNav"] { display: none !important; }
     
-    /* Global theme background and scroll lock */
+    /* Global theme background */
     [data-testid="stAppViewContainer"] {
         background: radial-gradient(circle at top right, #1a1a2e, #16213e, #0f3460) !important;
-        overflow: hidden !important;
     }
-    [data-testid="stMain"] {
-        overflow: hidden !important;
+    
+    /* Allow scrolling but hide scrollbar for clean UI */
+    [data-testid="stAppViewContainer"], [data-testid="stMain"], [data-testid="stSidebar"] {
+        overflow-y: auto !important;
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* IE/Edge */
     }
+    
+    [data-testid="stAppViewContainer"]::-webkit-scrollbar, 
+    [data-testid="stMain"]::-webkit-scrollbar,
+    [data-testid="stSidebar"]::-webkit-scrollbar {
+        display: none; /* Chrome, Safari, Opera */
+    }
+    
     .block-container {
         padding: 0 !important;
     }

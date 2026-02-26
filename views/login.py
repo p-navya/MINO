@@ -53,10 +53,10 @@ def show():
     
     # Hero Header
     st.markdown(f"""
-        <div style="text-align: center; margin-bottom: 2rem; margin-top: 2rem;">
-            <img src="data:image/jpeg;base64,{ai_image}" style="width: 120px; height: 120px; border-radius: 50%; border: 3px solid #7928CA; padding: 5px; margin-bottom: 1rem; box-shadow: 0 0 20px rgba(121, 40, 202, 0.4);">
-            <h1 style="color: white; font-weight: 800; font-size: 3rem; margin-bottom: 0;">Access <span style="background: linear-gradient(135deg, #FF0080 0%, #7928CA 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Mino</span></h1>
-            <p style="color: #a1a1a1;">Join our community of future-thinkers.</p>
+        <div style="text-align: center; margin-bottom: 1rem; margin-top: 1rem;">
+            <img src="data:image/jpeg;base64,{ai_image}" style="width: 80px; height: 80px; border-radius: 50%; border: 3px solid #7928CA; padding: 5px; margin-bottom: 0.5rem; box-shadow: 0 0 15px rgba(121, 40, 202, 0.4);">
+            <h1 style="color: white; font-weight: 800; font-size: 2.2rem; margin-bottom: 0;">Access <span style="background: linear-gradient(135deg, #FF0080 0%, #7928CA 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Mino</span></h1>
+            <p style="margin: 0; color: rgba(255,255,255,0.5); font-size: 0.9rem;">Join our community of future-thinkers.</p>
         </div>
     """, unsafe_allow_html=True)
 

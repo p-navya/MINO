@@ -5,30 +5,26 @@ def show():
     # Home-specific Styling
     st.markdown("""
         <style>
-        /* Fix the hero container to the viewport */
+        /* Fix the hero container to be more responsive */
         .hero-shell {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 90vh;
-            width: 85vw;
+            min-height: 85vh;
+            width: 90vw;
+            margin: 20px auto;
             text-align: center;
             background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 40px;
-            padding: 2rem;
+            padding: 1.5rem;
             color: white;
-            z-index: 100;
         }
         
         .hero-title {
-            font-size: 4.5rem;
+            font-size: 3.8rem;
             font-weight: 900;
             margin: 0;
             line-height: 1;
@@ -37,15 +33,16 @@ def show():
         
         .hero-subtitle {
             color: rgba(255,255,255,0.6);
-            font-size: 1.3rem;
-            margin-top: 15px;
-            margin-bottom: 30px;
+            font-size: 1.1rem;
+            margin-top: 10px;
+            margin-bottom: 20px;
         }
         
         .video-wrapper video {
-            width: 500px;
-            max-width: 80%;
-            border-radius: 24px;
+            width: 400px;
+            max-width: 90%;
+            max-height: 40vh;
+            border-radius: 20px;
             box-shadow: 0 30px 60px rgba(0,0,0,0.6);
             border: 1px solid rgba(255,255,255,0.1);
         }
@@ -75,8 +72,9 @@ def show():
     """, unsafe_allow_html=True)
 
     # 2. Main Hero UI
+    st.markdown('<div class="hero-shell">', unsafe_allow_html=True)
     st.markdown("""
-        <div style="text-align: center; margin-top: 5vh;">
+        <div style="text-align: center;">
             <h1 class="hero-title">
                 Meet <span style='background: linear-gradient(135deg, #FF0080 0%, #7928CA 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>Mino</span>
             </h1>
@@ -103,11 +101,11 @@ def show():
 
     # 4. Action Button
     col1, col2, col3 = st.columns([1.5, 1, 1.5])
-    with col1: st.write("") # Spacer
     with col2:
         if st.button("Get Started", type="primary", use_container_width=True):
             st.session_state.page = "login"
             st.rerun()
-    with col3: st.write("") # Spacer
+            
+    st.markdown('</div>', unsafe_allow_html=True) # Close hero-shell
     
     

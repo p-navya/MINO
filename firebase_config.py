@@ -64,29 +64,36 @@ def initialize_firebase():
     try:
         import firebase_admin
         from firebase_admin import credentials, firestore, auth
+        import streamlit as st
+        import json
         
         if not firebase_admin._apps:
-            try:
-                # Try to use service account file first
-                if not Path(SERVICE_ACCOUNT_PATH).exists():
-                    raise FileNotFoundError(
-                        f"Service account file not found at {SERVICE_ACCOUNT_PATH}."
-                    )
-                cred = credentials.Certificate(SERVICE_ACCOUNT_PATH)
-                # Ensure project ID is available to Admin SDK
-                if PROJECT_ID and not os.environ.get("GOOGLE_CLOUD_PROJECT"):
-                    os.environ["GOOGLE_CLOUD_PROJECT"] = PROJECT_ID
-                firebase_admin.initialize_app(cred, {"projectId": PROJECT_ID} if PROJECT_ID else None)
-            except Exception as e:
-                print(f"Error initializing Firebase with service account file: {e}")
-                # Fallback to default credentials (for testing)
+            # High-priority check: Search for Firebase Secrets (Streamlit Cloud)
+            firebase_secrets = st.secrets.get("firebase")
+            if firebase_secrets:
                 try:
-                    if PROJECT_ID and not os.environ.get("GOOGLE_CLOUD_PROJECT"):
-                        os.environ["GOOGLE_CLOUD_PROJECT"] = PROJECT_ID
+                    # firebase_secrets can be a dict or a JSON string
+                    if isinstance(firebase_secrets, str):
+                        key_dict = json.loads(firebase_secrets)
+                    else:
+                        key_dict = dict(firebase_secrets)
+                    cred = credentials.Certificate(key_dict)
+                    firebase_admin.initialize_app(cred)
+                    return firestore.client()
+                except Exception as e:
+                    print(f"Error initializing from secrets: {e}")
+
+            # Fallback: Local Service Account JSON
+            try:
+                if Path(SERVICE_ACCOUNT_PATH).exists():
+                    cred = credentials.Certificate(SERVICE_ACCOUNT_PATH)
+                    firebase_admin.initialize_app(cred, {"projectId": PROJECT_ID} if PROJECT_ID else None)
+                else:
+                    # Final Fallback to default credentials
                     firebase_admin.initialize_app(options={"projectId": PROJECT_ID} if PROJECT_ID else None)
-                except Exception as e2:
-                    print(f"Error initializing Firebase with default credentials: {e2}")
-                    raise e2
+            except Exception as e:
+                print(f"Error initializing Firebase with credentials/defaults: {e}")
+                return MockFirestore()
         
         return firestore.client()
     except ImportError:
