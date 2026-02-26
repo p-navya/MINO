@@ -12,8 +12,10 @@ firebase_config = {
     "measurementId": "G-CP90EPSF3M"
 }
 
-# Absolute path to your service account JSON (explicit, no defaults)
-SERVICE_ACCOUNT_PATH = r"D:\Mino-ChatBot-main\Mino-ChatBot-main\mino-e81f4-firebase-adminsdk-fbsvc-cea5b4030a.json"
+# Handle relative path for service account (works locally and deployed)
+BASE_DIR = Path(__file__).parent
+SERVICE_ACCOUNT_NAME = "mino-e81f4-firebase-adminsdk-fbsvc-cea5b4030a.json"
+SERVICE_ACCOUNT_PATH = BASE_DIR / SERVICE_ACCOUNT_NAME
 
 PROJECT_ID = firebase_config.get("projectId") or os.environ.get("GOOGLE_CLOUD_PROJECT")
 
