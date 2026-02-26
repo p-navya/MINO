@@ -5,147 +5,90 @@ from PIL import Image
 import io
 
 def get_image_base64():
-    with open("ai.jpg", "rb") as img_file:
-        return base64.b64encode(img_file.read()).decode()
+    try:
+        with open("ai.jpg", "rb") as img_file:
+            return base64.b64encode(img_file.read()).decode()
+    except: return ""
 
 def convert_image_to_base64(image):
-    # Convert PIL Image to base64 string
     buffered = io.BytesIO()
     image.save(buffered, format="JPEG")
     return base64.b64encode(buffered.getvalue()).decode()
 
 def show():
-    # Login-specific styling
     st.markdown("""
         <style>
-        .block-container {
-            padding-top: 2rem !important;
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        
-        /* Premium Blue-Black Buttons */
         div.stButton > button {
             background: #0f172a !important;
             color: #38bdf8 !important;
             border: 1px solid #38bdf8 !important;
             border-radius: 10px !important;
-            font-weight: 600 !important;
-            transition: all 0.3s ease !important;
-        }
-        div.stButton > button:hover {
-            background: #38bdf8 !important;
-            color: #0f172a !important;
-            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4) !important;
-        }
-        
-        /* Style forms and tabs to match */
-        .stTabs [data-baseweb="tab-list"] {
-            gap: 10px;
-        }
-        .stTabs [data-baseweb="tab"] {
-            border-radius: 8px !important;
-            padding: 8px 16px !important;
         }
         </style>
     """, unsafe_allow_html=True)
 
-    # Get AI image
     ai_image = get_image_base64()
     
-    # Diagnostic check
-    from firebase_config import get_firestore_client
-    db = get_firestore_client()
-    is_mock = "Mock" in str(type(db))
-    
-    # Hero Header
     st.markdown(f"""
-        <div style="text-align: center; margin-bottom: 1rem; margin-top: 1rem;">
-            <img src="data:image/jpeg;base64,{ai_image}" style="width: 80px; height: 80px; border-radius: 50%; border: 3px solid #7928CA; padding: 5px; margin-bottom: 0.5rem; box-shadow: 0 0 15px rgba(121, 40, 202, 0.4);">
-            <h1 style="color: white; font-weight: 800; font-size: 2.2rem; margin-bottom: 0;">Access <span style="background: linear-gradient(135deg, #FF0080 0%, #7928CA 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Mino</span></h1>
-            <p style="margin: 0; color: rgba(255,255,255,0.5); font-size: 0.9rem;">Join our community of future-thinkers.</p>
-            {"<p style='color: #fbbf24; font-size: 0.75rem; margin-top: 5px;'>⚠️ Running in Demo/Mock Mode</p>" if is_mock else "<p style='color: #10b981; font-size: 0.75rem; margin-top: 5px;'>✅ Database Connected</p>"}
+        <div style="text-align: center; margin: 20px 0;">
+            <img src="data:image/jpeg;base64,{ai_image}" style="width: 70px; border-radius: 50%;">
+            <h2>Access Mino</h2>
         </div>
     """, unsafe_allow_html=True)
 
-    # Centered container for the form
     col1, col2, col3 = st.columns([1, 2, 1])
-    
     with col2:
-        st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-        
-        # Create tabs for login and signup with custom style via container
         tab1, tab2 = st.tabs(["Login", "Sign Up"])
 
-        # Login tab
         with tab1:
-            with st.form("login_form", clear_on_submit=False):
-                login_username = st.text_input("Username", placeholder="Enter your username")
-                login_password = st.text_input("Password", type="password", placeholder="••••••••")
-                
-                # Profile picture upload
-                uploaded_file = st.file_uploader("Set Profile Picture (optional)", type=['jpg', 'jpeg', 'png'], key="login_uploader")
-                if uploaded_file is not None:
-                    image = Image.open(uploaded_file)
-                    image.thumbnail((150, 150))
-                    st.image(image, width=80)
-                    st.session_state.temp_profile_image = convert_image_to_base64(image)
-                
-                login_submit = st.form_submit_button("Sign In")
-                
-                if login_submit:
-                    if not login_username or not login_password:
-                        st.error("Missing credentials")
+            l_user = st.text_input("Username", key="login_u")
+            l_pass = st.text_input("Password", type="password", key="login_p")
+            if st.button("SIGN IN", type="primary", use_container_width=True, key="do_login"):
+                if l_user and l_pass:
+                    success, res_data, res_id = authenticate_user(l_user, l_pass)
+                    if success:
+                        st.session_state.logged_in = True
+                        st.session_state.username = l_user
+                        st.session_state.user_id = res_id
+                        st.session_state.page = "chatbot"
+                        st.success("Success! Redirecting...")
+                        st.rerun()
                     else:
-                        success, result_data, result_id = authenticate_user(login_username, login_password)
-                        if success:
-                            st.session_state.logged_in = True
-                            st.session_state.username = login_username
-                            st.session_state.user_id = result_id
-                            st.query_params["user"] = login_username
-                            if 'temp_profile_image' in st.session_state:
-                                st.session_state.user_profile_image = st.session_state.temp_profile_image
-                            elif result_data and 'profile_image' in result_data:
-                                st.session_state.user_profile_image = result_data['profile_image']
-                            st.success("Welcome back!")
-                            st.session_state.page = "chatbot"
-                            st.rerun()
-                        else:
-                            # result_data contains the error message now
-                            st.error(result_data or "Invalid credentials")
+                        st.error(f"Error: {res_data}")
+                else:
+                    st.warning("Fill all fields")
 
-        # Signup tab
         with tab2:
-            with st.form("signup_form", clear_on_submit=False):
-                signup_username = st.text_input("Choose Username", placeholder="e.g. tech_ninja")
-                signup_password = st.text_input("Choose Password", type="password", placeholder="••••••••")
-                confirm_password = st.text_input("Confirm Password", type="password", placeholder="••••••••")
-                
-                uploaded_file = st.file_uploader("Profile Picture", type=['jpg', 'jpeg', 'png'], key="signup_uploader")
-                if uploaded_file is not None:
-                    image = Image.open(uploaded_file)
-                    image.thumbnail((150, 150))
-                    st.image(image, width=80)
-                    st.session_state.temp_profile_image = convert_image_to_base64(image)
-                
-                signup_submit = st.form_submit_button("Create Account")
-                
-                if signup_submit:
-                    if not signup_username or not signup_password or not confirm_password:
-                        st.error("Please fill all fields")
-                    elif signup_password != confirm_password:
-                        st.error("Passwords mismatch")
+            s_user = st.text_input("New Username", key="signup_u")
+            s_pass = st.text_input("New Password", type="password", key="signup_p")
+            if st.button("CREATE ACCOUNT", type="primary", use_container_width=True, key="do_signup"):
+                if s_user and s_pass:
+                    success, res = create_user(s_user, s_pass)
+                    if success:
+                        st.success("Account created! Now login.")
                     else:
-                        profile_image = st.session_state.get('temp_profile_image')
-                        success, result = create_user(signup_username, signup_password, profile_image)
-                        if success:
-                            st.success("Ready! You can now login.")
-                        else:
-                            st.error(result)
+                        st.error(res)
+                else:
+                    st.warning("Fill all fields")
         
-        st.markdown('</div>', unsafe_allow_html=True)
-        
-        # Center the back button
-        st.markdown('<div style="margin-top: 1rem; text-align: center;">', unsafe_allow_html=True)
-        if st.button("Cancel & Return"):
+        if st.button("← Back", key="btn_goback"):
             st.session_state.page = "home"
             st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True) 
+
+    # Debug Section
+    with st.expander("🛠 System Connection Diagnostics"):
+        st.write(f"Page State: `{st.session_state.get('page')}`")
+        from firebase_config import get_connection_status
+        mode, error = get_connection_status()
+        st.write(f"Connection Mode: **{mode}**")
+        if error:
+            st.error(f"Last Connection Error: {error}")
+        else:
+            st.success("✅ Firebase connection status: Connected")

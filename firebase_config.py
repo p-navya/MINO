@@ -66,8 +66,13 @@ class MockDocumentSnapshot:
     def to_dict(self):
         return self._data or {}
 
+# Global connection status tracker
+LAST_ERROR = "Not initialized"
+CONNECTION_MODE = "None"
+
 # Initialize Firebase Admin SDK
 def initialize_firebase():
+    global LAST_ERROR, CONNECTION_MODE
     try:
         import firebase_admin
         from firebase_admin import credentials, firestore, auth
@@ -75,40 +80,51 @@ def initialize_firebase():
         import json
         
         if not firebase_admin._apps:
-            # High-priority check: Search for Firebase Secrets (Streamlit Cloud)
-            firebase_secrets = st.secrets.get("firebase")
-            if firebase_secrets:
+            # 1. Streamlit Cloud Secrets
+            if hasattr(st, "secrets") and "firebase" in st.secrets:
                 try:
-                    # firebase_secrets can be a dict or a JSON string
-                    if isinstance(firebase_secrets, str):
-                        key_dict = json.loads(firebase_secrets)
-                    else:
-                        key_dict = dict(firebase_secrets)
+                    secret_raw = st.secrets["firebase"]
+                    key_dict = json.loads(secret_raw) if isinstance(secret_raw, str) else dict(secret_raw)
                     cred = credentials.Certificate(key_dict)
                     firebase_admin.initialize_app(cred)
+                    CONNECTION_MODE = "Streamlit Secrets"
+                    LAST_ERROR = None
                     return firestore.client()
                 except Exception as e:
-                    print(f"Error initializing from secrets: {e}")
+                    LAST_ERROR = f"Secrets Error: {e}"
 
-            # Fallback: Local Service Account JSON
-            try:
-                if Path(SERVICE_ACCOUNT_PATH).exists():
+            # 2. Local Service Account JSON
+            if Path(SERVICE_ACCOUNT_PATH).exists():
+                try:
                     cred = credentials.Certificate(SERVICE_ACCOUNT_PATH)
                     firebase_admin.initialize_app(cred, {"projectId": PROJECT_ID} if PROJECT_ID else None)
-                else:
-                    # Final Fallback to default credentials
-                    firebase_admin.initialize_app(options={"projectId": PROJECT_ID} if PROJECT_ID else None)
+                    CONNECTION_MODE = "Local JSON File"
+                    LAST_ERROR = None
+                    return firestore.client()
+                except Exception as e:
+                    LAST_ERROR = f"Local JSON Error: {e}"
+            else:
+                LAST_ERROR = f"File not found at {SERVICE_ACCOUNT_PATH}"
+
+            # 3. Final Fallback
+            try:
+                firebase_admin.initialize_app(options={"projectId": PROJECT_ID} if PROJECT_ID else None)
+                CONNECTION_MODE = "ADC / Default"
+                LAST_ERROR = None
+                return firestore.client()
             except Exception as e:
-                print(f"Error initializing Firebase with credentials/defaults: {e}")
+                LAST_ERROR = f"Default Init Failed: {e}"
+                CONNECTION_MODE = "MOCK (Offline)"
                 return MockFirestore()
         
         return firestore.client()
-    except ImportError:
-        print("Firebase Admin SDK not available, using mock implementation")
-        return MockFirestore()
     except Exception as e:
-        print(f"Firebase initialization failed: {e}, using mock implementation")
+        LAST_ERROR = str(e)
+        CONNECTION_MODE = "MOCK (Error)"
         return MockFirestore()
+
+def get_connection_status():
+    return CONNECTION_MODE, LAST_ERROR
 
 # Get Firestore client
 def get_firestore_client():
