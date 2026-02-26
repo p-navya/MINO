@@ -10,9 +10,9 @@ def show():
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 32px;
-            padding: 40px;
+            padding: 24px 40px;
             max-width: 800px;
-            margin: 5vh auto;
+            margin: 4vh auto;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -32,7 +32,7 @@ def show():
             color: rgba(255,255,255,0.6);
             font-size: 1.1rem;
             margin-top: 10px;
-            margin-bottom: 30px;
+            margin-bottom: 16px;
             text-align: center;
         }
         
@@ -40,12 +40,12 @@ def show():
             display: flex;
             justify-content: center;
             width: 100%;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
         
         .video-wrapper video {
             width: 100%;
-            max-width: 450px;
+            max-width: 400px;
             border-radius: 20px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.5);
             border: 1px solid rgba(255,255,255,0.1);
@@ -60,7 +60,7 @@ def show():
             padding: 12px 32px !important;
             font-weight: 600 !important;
             transition: all 0.3s ease !important;
-            margin-top: 30px;
+            margin-top: 15px;
         }
         div.stButton > button:hover {
             background: #38bdf8 !important;
