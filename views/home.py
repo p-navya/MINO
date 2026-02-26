@@ -9,30 +9,30 @@ def show():
             background: rgba(255, 255, 255, 0.04);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 32px;
-            padding: 24px 40px;
-            max-width: 800px;
-            margin: 4vh auto;
+            border-radius: 24px;
+            padding: 20px 35px;
+            max-width: 600px;
+            margin: 3vh auto;
             display: flex;
             flex-direction: column;
             align-items: center;
-            box-shadow: 0 40px 100px rgba(0,0,0,0.4);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
         }
         
         .hero-title {
-            font-size: 3.5rem;
+            font-size: 2.8rem;
             font-weight: 900;
             margin: 0;
             line-height: 1.1;
-            letter-spacing: -2px;
+            letter-spacing: -1.5px;
             text-align: center;
         }
         
         .hero-subtitle {
             color: rgba(255,255,255,0.6);
-            font-size: 1.1rem;
-            margin-top: 10px;
-            margin-bottom: 16px;
+            font-size: 1rem;
+            margin-top: 8px;
+            margin-bottom: 20px;
             text-align: center;
         }
         
@@ -40,14 +40,14 @@ def show():
             display: flex;
             justify-content: center;
             width: 100%;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
         
         .video-wrapper video {
             width: 100%;
-            max-width: 400px;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            max-width: 380px;
+            border-radius: 16px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.4);
             border: 1px solid rgba(255,255,255,0.1);
         }
 
@@ -56,8 +56,8 @@ def show():
             background: #0f172a !important;
             color: #38bdf8 !important;
             border: 1px solid #38bdf8 !important;
-            border-radius: 12px !important;
-            padding: 12px 32px !important;
+            border-radius: 10px !important;
+            padding: 10px 28px !important;
             font-weight: 600 !important;
             transition: all 0.3s ease !important;
             margin-top: 15px;
