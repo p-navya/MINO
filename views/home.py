@@ -64,45 +64,41 @@ def show():
     """, unsafe_allow_html=True)
 
     # 2. Main Hero UI
-    # We consolidate everything into a single HTML block to prevent Streamlit 
-    # from breaking the container into empty pieces.
-    
     video_html = ""
     try:
         with open("my.mp4", "rb") as video_file:
             video_bytes = video_file.read()
             video_b64 = base64.b64encode(video_bytes).decode()
-        video_html = f"""
-            <div class="video-wrapper" style="display:flex; justify-content:center; width:100%; margin: 20px 0;">
-                <video autoplay loop muted playsinline style="width:100%; max-width:420px; border-radius:18px; box-shadow:0 15px 30px rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.1);">
+        # Use a simpler data-uri injection to prevent raw text glitch
+        video_html = f'''
+            <div class="video-container" style="display: flex; justify-content: center; width: 100%; margin: 15px 0;">
+                <video autoplay loop muted playsinline style="width: 100%; max-width: 440px; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1);">
                     <source src="data:video/mp4;base64,{video_b64}" type="video/mp4">
                 </video>
             </div>
-        """
+        '''
     except FileNotFoundError:
-        video_html = '<div style="height: 20px;"></div>'
+        video_html = '<div style="height: 10px;"></div>'
 
-    # Single block for the Shell + Title + Video
-    st.markdown(f"""
+    # Single-block rendering to ensure everything stays INSIDE the shell
+    st.markdown(f'''
         <div class="hero-shell">
-            <h1 class="hero-title">
-                Meet <span style='background: linear-gradient(135deg, #FF0080 0%, #7928CA 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>Mino</span>
-            </h1>
-            <p class="hero-subtitle">Your intelligent companion for the digital age.</p>
-            {video_html}
-            
-            <!-- We'll use a data-testid to target the button area if needed, 
-                 but for now, we just close the shell AFTER the button call below -->
-    """, unsafe_allow_html=True)
+            <div style="text-align: center; margin-bottom: 30px;">
+                <p style="color: #38bdf8; font-weight: 700; font-size: 0.85rem; letter-spacing: 2px; margin-bottom: 10px; opacity: 0.8;">WELCOME TO THE FUTURE</p>
+                <h1 class="hero-title">
+                    Meet <span style="background: linear-gradient(135deg, #FF0080 0%, #7928CA 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Mino</span>
+                </h1>
+                <p class="hero-subtitle">Your intelligent companion for the digital age.</p>
+                {video_html}
+            </div>
+        </div>
+    ''', unsafe_allow_html=True)
 
-    # 3. Action Button
-    # Since st.button MUST be called as a python function, we place it here.
-    # We use CSS to make sure it looks like it's inside the shell.
-    col1, col2, col3 = st.columns([1, 1.2, 1])
+    # 3. Action Button - Positioned to look like it's part of the shell footer
+    st.markdown('<div style="margin-top: -60px;">', unsafe_allow_html=True)
+    col1, col2, col3 = st.columns([1, 1, 1])
     with col2:
         if st.button("Get Started", type="primary", use_container_width=True):
             st.session_state.page = "login"
             st.rerun()
-
-    # Close the Shell
     st.markdown('</div>', unsafe_allow_html=True)
