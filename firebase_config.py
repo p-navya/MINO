@@ -18,46 +18,53 @@ SERVICE_ACCOUNT_PATH = r"D:\Mino-ChatBot-main\Mino-ChatBot-main\mino-e81f4-fireb
 PROJECT_ID = firebase_config.get("projectId") or os.environ.get("GOOGLE_CLOUD_PROJECT")
 
 # Mock Firebase classes for development
+# Global mock storage to make Demo Mode functional
+MOCK_DATA = {"users": {}, "chats": {}}
+
 class MockFirestore:
     def collection(self, name):
-        return MockCollection()
+        return MockCollection(name)
 
 class MockCollection:
-    def document(self, doc_id=None):
-        return MockDocument()
-    
-    def where(self, field, operator, value):
-        return MockQuery()
+    def __init__(self, name):
+        self.name = name
+    def document(self, doc_id):
+        return MockDocument(self.name, doc_id)
 
 class MockDocument:
+    def __init__(self, coll_name, doc_id):
+        self.coll_name = coll_name
+        self.doc_id = doc_id
+    
     def set(self, data):
-        print(f"Mock Firestore: Setting document with data: {data}")
+        if self.coll_name not in MOCK_DATA: MOCK_DATA[self.coll_name] = {}
+        MOCK_DATA[self.coll_name][self.id] = data
         return True
     
+    @property
+    def id(self): return self.doc_id
+
     def get(self):
-        return MockDocumentSnapshot()
+        data = MOCK_DATA.get(self.coll_name, {}).get(self.doc_id)
+        return MockDocumentSnapshot(data)
     
     def update(self, data):
-        print(f"Mock Firestore: Updating document with data: {data}")
+        if self.coll_name in MOCK_DATA and self.doc_id in MOCK_DATA[self.coll_name]:
+            MOCK_DATA[self.coll_name][self.doc_id].update(data)
         return True
     
     def delete(self):
-        print("Mock Firestore: Deleting document")
+        if self.coll_name in MOCK_DATA and self.doc_id in MOCK_DATA[self.coll_name]:
+            del MOCK_DATA[self.coll_name][self.doc_id]
         return True
 
 class MockDocumentSnapshot:
+    def __init__(self, data):
+        self._data = data
     def exists(self):
-        return False
-    
+        return self._data is not None
     def to_dict(self):
-        return {}
-
-class MockQuery:
-    def limit(self, count):
-        return self
-    
-    def stream(self):
-        return []
+        return self._data or {}
 
 # Initialize Firebase Admin SDK
 def initialize_firebase():

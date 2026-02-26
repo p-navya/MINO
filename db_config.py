@@ -107,11 +107,13 @@ def authenticate_user(username, password):
             user_data = user_doc.to_dict()
             if user_data and user_data.get('password') == hashed_password:
                 return True, user_data, username
-        return False, None, None
+            return False, "Invalid password", None
+        return False, "User not found", None
 
     except Exception as e:
-        print(f"Error authenticating user: {e}")
-        return False, None, None
+        error_msg = str(e)
+        print(f"Error authenticating user: {error_msg}")
+        return False, f"Database error: {error_msg}", None
 
 def save_chat(user_id, chat_name, messages):
     """Save chat messages to Firestore"""

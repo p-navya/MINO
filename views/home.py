@@ -71,36 +71,40 @@ def show():
     """, unsafe_allow_html=True)
 
     # 2. Main Hero UI
-    # We combine the shell opening and title to ensure they stay grouped
-    st.markdown("""
-        <div class="hero-shell">
-            <h1 class="hero-title">
-                Meet <span style='background: linear-gradient(135deg, #FF0080 0%, #7928CA 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>Mino</span>
-            </h1>
-            <p class="hero-subtitle">Your intelligent companion for the digital age.</p>
-    """, unsafe_allow_html=True)
-
-    # 3. Video Rendering
+    video_html = ""
     try:
         with open("my.mp4", "rb") as video_file:
             video_bytes = video_file.read()
             video_b64 = base64.b64encode(video_bytes).decode()
-            
-        st.markdown(f"""
+        video_html = f"""
             <div class="video-wrapper">
                 <video autoplay loop muted playsinline>
                     <source src="data:video/mp4;base64,{video_b64}" type="video/mp4">
                 </video>
             </div>
-        """, unsafe_allow_html=True)
+        """
     except FileNotFoundError:
-        pass 
+        video_html = ""
 
-    # 4. Action Button
-    col1, col2, col3 = st.columns([1, 1.2, 1])
-    with col2:
-        if st.button("Get Started", type="primary", use_container_width=True):
-            st.session_state.page = "login"
-            st.rerun()
+    # Single-block rendering to ensure everything stays INSIDE the shell
+    st.markdown(f'''
+        <div class="hero-shell">
+            <div style="text-align: center;">
+                <h1 class="hero-title">
+                    Meet <span style="background: linear-gradient(135deg, #FF0080 0%, #7928CA 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Mino</span>
+                </h1>
+                <p class="hero-subtitle">Your intelligent companion for the digital age.</p>
+                {video_html}
+            </div>
+        </div>
+    ''', unsafe_allow_html=True)
 
-    st.markdown('</div>', unsafe_allow_html=True) # Close hero-shell
+    # 3. Action Button - Use standard Streamlit columns for maximum clickability
+    # Use a container to manage vertical spacing properly
+    with st.container():
+        st.markdown('<div style="height: 10px;"></div>', unsafe_allow_html=True)
+        col1, col2, col3 = st.columns([1, 1.2, 1])
+        with col2:
+            if st.button("Get Started", type="primary", use_container_width=True):
+                st.session_state.page = "login"
+                st.rerun()

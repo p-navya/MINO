@@ -51,12 +51,18 @@ def show():
     # Get AI image
     ai_image = get_image_base64()
     
+    # Diagnostic check
+    from firebase_config import get_firestore_client
+    db = get_firestore_client()
+    is_mock = "Mock" in str(type(db))
+    
     # Hero Header
     st.markdown(f"""
         <div style="text-align: center; margin-bottom: 1rem; margin-top: 1rem;">
             <img src="data:image/jpeg;base64,{ai_image}" style="width: 80px; height: 80px; border-radius: 50%; border: 3px solid #7928CA; padding: 5px; margin-bottom: 0.5rem; box-shadow: 0 0 15px rgba(121, 40, 202, 0.4);">
             <h1 style="color: white; font-weight: 800; font-size: 2.2rem; margin-bottom: 0;">Access <span style="background: linear-gradient(135deg, #FF0080 0%, #7928CA 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Mino</span></h1>
             <p style="margin: 0; color: rgba(255,255,255,0.5); font-size: 0.9rem;">Join our community of future-thinkers.</p>
+            {"<p style='color: #fbbf24; font-size: 0.75rem; margin-top: 5px;'>⚠️ Running in Demo/Mock Mode</p>" if is_mock else "<p style='color: #10b981; font-size: 0.75rem; margin-top: 5px;'>✅ Database Connected</p>"}
         </div>
     """, unsafe_allow_html=True)
 
@@ -89,21 +95,22 @@ def show():
                     if not login_username or not login_password:
                         st.error("Missing credentials")
                     else:
-                        success, user_data, user_id = authenticate_user(login_username, login_password)
+                        success, result_data, result_id = authenticate_user(login_username, login_password)
                         if success:
                             st.session_state.logged_in = True
                             st.session_state.username = login_username
-                            st.session_state.user_id = user_id
+                            st.session_state.user_id = result_id
                             st.query_params["user"] = login_username
                             if 'temp_profile_image' in st.session_state:
                                 st.session_state.user_profile_image = st.session_state.temp_profile_image
-                            elif user_data and 'profile_image' in user_data:
-                                st.session_state.user_profile_image = user_data['profile_image']
+                            elif result_data and 'profile_image' in result_data:
+                                st.session_state.user_profile_image = result_data['profile_image']
                             st.success("Welcome back!")
                             st.session_state.page = "chatbot"
                             st.rerun()
                         else:
-                            st.error("Invalid credentials")
+                            # result_data contains the error message now
+                            st.error(result_data or "Invalid credentials")
 
         # Signup tab
         with tab2:
