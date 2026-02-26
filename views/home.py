@@ -64,41 +64,56 @@ def show():
     """, unsafe_allow_html=True)
 
     # 2. Main Hero UI
-    video_html = ""
-    try:
-        with open("my.mp4", "rb") as video_file:
-            video_bytes = video_file.read()
-            video_b64 = base64.b64encode(video_bytes).decode()
-        # Use a simpler data-uri injection to prevent raw text glitch
-        video_html = f'''
-            <div class="video-container" style="display: flex; justify-content: center; width: 100%; margin: 15px 0;">
-                <video autoplay loop muted playsinline style="width: 100%; max-width: 440px; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1);">
-                    <source src="data:video/mp4;base64,{video_b64}" type="video/mp4">
-                </video>
-            </div>
-        '''
-    except FileNotFoundError:
-        video_html = '<div style="height: 10px;"></div>'
-
-    # Single-block rendering to ensure everything stays INSIDE the shell
-    st.markdown(f'''
-        <div class="hero-shell">
-            <div style="text-align: center; margin-bottom: 30px;">
-                <p style="color: #38bdf8; font-weight: 700; font-size: 0.85rem; letter-spacing: 2px; margin-bottom: 10px; opacity: 0.8;">WELCOME TO THE FUTURE</p>
-                <h1 class="hero-title">
-                    Meet <span style="background: linear-gradient(135deg, #FF0080 0%, #7928CA 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Mino</span>
-                </h1>
-                <p class="hero-subtitle">Your intelligent companion for the digital age.</p>
-                {video_html}
-            </div>
+    # We use a container and separate calls to ensure the Base64 doesn't break the HTML rendering
+    st.markdown('<div class="hero-shell">', unsafe_allow_html=True)
+    
+    # Text Section
+    st.markdown("""
+        <div style="text-align: center;">
+            <p style="color: #38bdf8; font-weight: 700; font-size: 0.85rem; letter-spacing: 2px; margin-bottom: 10px; opacity: 0.8;">WELCOME TO THE FUTURE</p>
+            <h1 class="hero-title">
+                Meet <span style="background: linear-gradient(135deg, #FF0080 0%, #7928CA 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Mino</span>
+            </h1>
+            <p class="hero-subtitle">Your intelligent companion for the digital age.</p>
         </div>
-    ''', unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 
-    # 3. Action Button - Positioned to look like it's part of the shell footer
-    st.markdown('<div style="margin-top: -60px;">', unsafe_allow_html=True)
+    # Video Section - Using st.video for stability then styling it with CSS
+    try:
+        with open("my.mp4", "rb") as v_file:
+            video_bytes = v_file.read()
+            # We wrap it in a div to apply the wrapper styling from our CSS
+            st.markdown('<div class="video-wrapper">', unsafe_allow_html=True)
+            st.video(video_bytes, format="video/mp4", start_time=0, loop=True, autoplay=True, muted=True)
+            st.markdown('</div>', unsafe_allow_html=True)
+    except Exception:
+        st.markdown('<div style="height: 20px;"></div>', unsafe_allow_html=True)
+
+    # 3. Action Button
+    st.markdown('<div style="margin-top: 20px; width: 100%; display: flex; justify-content: center;">', unsafe_allow_html=True)
     col1, col2, col3 = st.columns([1, 1, 1])
     with col2:
         if st.button("Get Started", type="primary", use_container_width=True):
             st.session_state.page = "login"
             st.rerun()
     st.markdown('</div>', unsafe_allow_html=True)
+
+    # Close the Shell
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # Add extra CSS to hide the st.video controls and match our style
+    st.markdown("""
+        <style>
+        /* Target the Streamlit video component to match our theme */
+        [data-testid="stVideo"] {
+            border-radius: 20px !important;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5) !important;
+            border: 1px solid rgba(255,255,255,0.1) !important;
+            overflow: hidden !important;
+        }
+        /* Hide default video controls for a cleaner "background video" look */
+        video::-webkit-media-controls {
+            display: none !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
